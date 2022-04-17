@@ -1,4 +1,3 @@
-from ast import Return
 import pandas as pd
 
 
@@ -76,7 +75,5 @@ def flanges(min_temperature, max_temperature, max_pressure):
         materials_group_1_1 = materials_group_1_1[[
             'materials_group', 'temperature', f'{rating}']]
         print(materials_group_1_1)
-
-    print(rating)
 
     return rating

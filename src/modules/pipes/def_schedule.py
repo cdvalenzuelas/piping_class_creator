@@ -1,6 +1,7 @@
 import pandas as pd
 
 
+# Calcular el schedule mínimo admisible
 def calculate_schedule(thickness, sub_df, size):
     if thickness == '-':
         return '-'
@@ -25,40 +26,15 @@ def calculate_schedule(thickness, sub_df, size):
             return schedule
 
 
-def def_schedules(thickness_df, sizes, available_schedules):
-    # Haciendo una copia del archivo thickness
-    schedules_df = thickness_df.copy()
-
-    # Traer las tuberías y sus dimensiones
-    pipes_dimensions = pd.read_csv(
-        './src/elements/pipes/pipes_dimensions.csv')
-
-    # Llenar los vacío
-    pipes_dimensions.fillna('-', inplace=True)
-
-    # Dejar únicamente las columnas necesarias
-    pipes_dimensions.drop(['OD', 'SIZE_NUMBER'], inplace=True, axis=1)
-
-    # Redefinir el index
-    pipes_dimensions.set_index(['SIZE'], inplace=True)
-
-    # Eliminar los Schedules no comerciales
-    if len(available_schedules):
-        pipes_dimensions = pipes_dimensions[available_schedules]
-
-    # Hacerle una transpuesta al df (dejar los diámetros como nombres de columnas y los sch como filas)
-    pipes_dimensions = pipes_dimensions.T
-
-    # Resetear el indice
-    pipes_dimensions.reset_index(inplace=True)
-
-    # Renombrar el indice
-    pipes_dimensions.rename(columns={'index': 'SIZE'}, inplace=True)
+def def_schedule(min_thickness_df, sizes, pipes_dimensions_df):
+    # Hacer una copia deñ min_thickness_df
+    schedules_df = min_thickness_df.copy()
+    pipes_dimensions_df = pipes_dimensions_df.copy()
 
     # Calcular el schedule para cada espesor
     for size in sizes:
         # Extraer únicamente los schedules de cada tamaño
-        sub_df = pipes_dimensions[['SIZE', size]]
+        sub_df = pipes_dimensions_df[['SIZE', size]]
 
         # Eliminar los schedules que no existen
         sub_df = sub_df[(sub_df[size] != '-')]
