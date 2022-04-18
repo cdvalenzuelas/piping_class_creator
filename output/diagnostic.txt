@@ -1,0 +1,88 @@
+
+Se genera una spec con las siguientes condiciones iniciales:
+
+* Temperatura mínima de operación de 32 °F.
+* Temperatura máxima de operación de 720 °F.
+* Presión máxima de operación de 3000 psig.
+* Una corrosión permisible de 0.0625 in.
+* Los materiales disponibles para la tubería son los siguientes: ['A106', 'API 5L', 'A333', 'A53'].
+* Los schedules disponibles para la tubería son los siguientes: ['10', '40', 'STD', '80', 'XS', '160', 'XXS']
+
+2. TUBERÍAS
+___________
+Lo primero es teterminar el valor de S [ksi] para la máxima temperatura de operación (720 °F).
+Como la temperatura de operación no se encuentra dentro de las establecidas en la norma (tabuladas),
+el valor de S [ksi] corresponde a la interpolación de valores de S [ksi] teniendo en cuenta dos temperaturas tabuladas. 
+Las columnas que se deben tener en cuenta son '700' y '750' de la tabla A-1 del código ASME B31.3 EDICIÓN 2020.
+
+Los S [ksi] calculados para cada material son los siguientes:
+
+   SPEC_NO TYPE/GRADE      S
+9     A106          A  11.78
+30    A106          B  15.58
+17    A333          1  13.78
+31    A333          6  15.58
+8      A53          A  11.78
+29     A53          B  15.58
+12  API 5L          A  11.78
+35  API 5L          B  15.58
+
+Los siguientes materiales no fueron tenidos en cuenta pues no resisten temperaturas de operación mayores o iguales a 720 °F:.
+
+   SPEC_NO TYPE/GRADE
+55    A106          C
+5      A53          A
+2   API 5L        A25
+3   API 5L        A25
+38  API 5L        X42
+41  API 5L        X46
+49  API 5L        X52
+59  API 5L        X56
+67  API 5L        X60
+68  API 5L        X65
+69  API 5L        X70
+70  API 5L        X80
+
+Una vez se tienen los materiales válidos para el cálculo, es decir, que la tempera máxima de operación del sistema se encuentre
+dentro de las temperaturas de operación del material de la tubería, se procede a calcular el espesor mínimo de pared
+para cada combinación de diámetro nominal (NPS) y material.
+
+Los cálculos de espesores corresponden a la plicación de la fórmula dada en el parágrafo 304.1.2 del código ASME B31.3 edición 2020.La formula
+descrita en este parágrafo es la siguiente:
+
+            t=P*D
+    t = ---------------
+        2*(S*E*W + Y*P)
+
+En donde:
+
+* P representa la presión interna de la tubería (presión máxima de operación del sistema).
+* D representa en diámetro externo de la tubería.
+* t representa el espesor mínimo de diseño para tuberías con presión interna.
+* S representa el valor de esfuerzo de cada material (calculado en pasos anteriores) extraido de la tabla A-1 del código ASME B31.3 edición 2020.
+* E representa el factor de calidad extraido de la tabla A-1A del código ASME B31.3 edición 2020.
+* W representa el facor de reducción de resistencia del material de acuerdo con el parágrafo 302.3.5(e) del código ASME B31.3 edición 2020.
+* Y representa el coeficiente extrído del parágrafo 304.1.1 del código ASME B31.3 edición 2020. Estos valores son válidos para t<D/6.
+
+El resultado de estos cálculos se puede observar en el archivo 'pipes_min_thickness.csv'.
+
+Este cálculo por este método tienen dos limitaciones importante y no son cubiertas por el código ASME B31.3 edición 2020. Estas son las siguientes:
+
+1. El material de tubería que cuente con un espesor de tuberías calculado mayor a D/6 no debe ser considerado viable.
+2. El material de tubería que cunete con una razón de P/(S*E) mayor a 0.385 (factor de seguridad) no debe ser considerado.
+
+Los materiales que cumplen con las una o las dos condiciones anteriores (materiales a no ser tenidos en cuenta) están
+consignados en el archivo 'asme_b31_3_304_1_2_limitations.csv'.
+
+Luego de haber calculado los espesores mínimos de diseño, se procede a adicionar la corrosión adimisble, es decir 0.0625 in 
+ó 1.5875 mm. El resultado de esta suma se encuentra en ela rchivo 'pipes_thickness_with_corrosion_load.csv'.
+
+
+Después de haber adicionado la corrosión admisible se procede a relacionar el espesor calculado (teniendo en cuenta la corrosión adimisible) 
+con el espesor de tubería y schedule más cercano (según el codigo ASME B31.10) para cada combinación de diámetro (NPS) y material. Estos resultados se pueden 
+visualizar en los archivos 'pipes_code_thickness.csv' y 'pipes_schedules.csv' respectívamente.
+
+Finálmente se tienen en cuenta las limitaciones de espesor dadas por la tabla A-1 del código ASME B31.3 edición 2020. Es decir, 
+no se tienen en cuenta combinaciones de material y diámetro (NPS) que cuenten con espesores mayores o menores a los
+establecidos en la tabla mensionada anteiormente. Estas combinaciones de material, diámetro y espsor están dadas en el archivo
+'asme_b31_3_table_A1_thickness_limitations.csv'.

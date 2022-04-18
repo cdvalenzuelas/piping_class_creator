@@ -1,8 +1,9 @@
 import pandas as pd
 
+from src.utils.write_diagnostic import write_diagnostic
+
+
 # Calcualr el espesor mínimo relacionado a un schedule
-
-
 def calculate_code_thickness(thickness, sub_df, size):
     if thickness == '-':
         return '-'
@@ -28,6 +29,13 @@ def calculate_code_thickness(thickness, sub_df, size):
 
 
 def def_code_thickness(min_thickness_df, sizes, pipes_dimensions_df):
+    write_diagnostic(f"""
+
+Después de haber adicionado la corrosión admisible se procede a relacionar el espesor calculado (teniendo en cuenta la corrosión adimisible) 
+con el espesor de tubería y schedule más cercano (según el codigo ASME B31.10) para cada combinación de diámetro (NPS) y material. Estos resultados se pueden 
+visualizar en los archivos 'pipes_code_thickness.csv' y 'pipes_schedules.csv' respectívamente.
+""")
+
     # Hacer una copia de los df
     code_thickness_df = min_thickness_df.copy()
     pipes_dimensions_df = pipes_dimensions_df.copy()
